@@ -190,7 +190,7 @@ export default {
       },
       {
         path: '/reports',
-        label: 'Reports',
+        label: t('nav.reports'),
         icon: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 17V8M8 17V3M12 17V10M16 17V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
       }
     ])
