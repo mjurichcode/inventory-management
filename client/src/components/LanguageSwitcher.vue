@@ -1,32 +1,25 @@
 <template>
-  <div class="language-switcher">
+  <div class="language-switcher" :class="{ 'is-collapsed': collapsed }">
     <button
       class="language-button"
       @click="toggleDropdown"
       @blur="handleBlur"
+      :title="collapsed ? localeName : ''"
     >
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
-        fill="none"
-        class="globe-icon"
-      >
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="globe-icon">
         <circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/>
         <path d="M3 10H17" stroke="currentColor" stroke-width="1.5"/>
         <path d="M10 3C10 3 7.5 5.5 7.5 10C7.5 14.5 10 17 10 17" stroke="currentColor" stroke-width="1.5"/>
         <path d="M10 3C10 3 12.5 5.5 12.5 10C12.5 14.5 10 17 10 17" stroke="currentColor" stroke-width="1.5"/>
       </svg>
-      <span class="language-label">{{ localeName }}</span>
+      <span v-if="!collapsed" class="language-label">{{ localeName }}</span>
       <svg
+        v-if="!collapsed"
         class="chevron"
         :class="{ 'chevron-open': isDropdownOpen }"
-        width="16"
-        height="16"
-        viewBox="0 0 16 16"
-        fill="none"
+        width="14" height="14" viewBox="0 0 16 16" fill="none"
       >
-        <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M4 10L8 6L12 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
     </button>
 
@@ -41,11 +34,7 @@
         <span class="language-name">{{ getLanguageName(locale) }}</span>
         <svg
           v-if="currentLocale === locale"
-          width="18"
-          height="18"
-          viewBox="0 0 18 18"
-          fill="none"
-          class="check-icon"
+          width="16" height="16" viewBox="0 0 18 18" fill="none" class="check-icon"
         >
           <path d="M4 9L7.5 12.5L14 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -57,6 +46,10 @@
 <script setup>
 import { ref } from 'vue'
 import { useI18n } from '../composables/useI18n'
+
+const props = defineProps({
+  collapsed: { type: Boolean, default: false }
+})
 
 const { currentLocale, setLocale, availableLocales, localeName } = useI18n()
 
@@ -76,7 +69,6 @@ const toggleDropdown = () => {
 }
 
 const handleBlur = () => {
-  // Delay to allow mousedown events on dropdown items to fire first
   setTimeout(() => {
     isDropdownOpen.value = false
   }, 200)
@@ -96,53 +88,60 @@ const selectLanguage = (locale) => {
 .language-button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.04);
+  border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 150ms ease;
   font-family: inherit;
-  font-size: 0.875rem;
-  color: #334155;
+  font-size: 0.8125rem;
+  color: rgba(255,255,255,0.55);
+  width: 100%;
+}
+.language-button:hover {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.8);
 }
 
-.language-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+.is-collapsed .language-button {
+  justify-content: center;
+  padding: 8px;
 }
 
 .globe-icon {
-  color: #64748b;
   flex-shrink: 0;
 }
-
 .language-label {
   font-weight: 500;
+  flex: 1;
 }
-
 .chevron {
-  color: #64748b;
-  transition: transform 0.2s ease;
+  color: rgba(255,255,255,0.3);
+  transition: transform 200ms ease;
   flex-shrink: 0;
 }
-
 .chevron-open {
   transform: rotate(180deg);
 }
 
+/* Dropdown opens upward in sidebar */
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
+  bottom: calc(100% + 6px);
+  left: 0;
   min-width: 160px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 -4px 16px rgba(16,37,50,0.1), 0 2px 6px rgba(16,37,50,0.05);
   z-index: 1000;
   overflow: hidden;
+}
+/* When collapsed, open to the right */
+.is-collapsed .dropdown-menu {
+  bottom: 0;
+  left: calc(100% + 8px);
 }
 
 .dropdown-item {
@@ -150,34 +149,28 @@ const selectLanguage = (locale) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: 8px;
+  padding: 10px 14px;
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 150ms ease;
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  color: #334155;
+  color: var(--ms-grey-700);
 }
-
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--ms-grey-50);
 }
-
 .dropdown-item.active {
-  background: #eff6ff;
-  color: #2563eb;
+  background: var(--ms-mint-pale);
+  color: var(--ms-green-deep);
 }
-
-.language-name {
-  flex: 1;
-}
-
+.language-name { flex: 1; }
 .check-icon {
-  color: #2563eb;
+  color: var(--ms-green-deep);
   flex-shrink: 0;
 }
 </style>
